@@ -1,36 +1,54 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User.js';
+import { db } from '../db/index.js';
+import { users } from '../db/schema.js';
+import { eq, or } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 
 export class AuthService {
   static async register(email: string, username: string, password: string) {
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    // 检查用户是否存在
+    const existingUser = db.select().from(users)
+      .where(or(eq(users.email, email), eq(users.username, username)))
+      .get();
+
     if (existingUser) {
       throw new Error('User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const id = randomUUID();
+    const now = new Date().toISOString();
 
-    const user = await User.create({
+    // 创建用户
+    db.insert(users).values({
+      id,
       email,
       username,
       password: hashedPassword,
-    });
+      role: 'user',
+      createdAt: now,
+      updatedAt: now,
+    }).run();
 
-    const token = this.generateToken(user._id.toString(), user.email);
+    const token = this.generateToken(id, email);
 
     return {
       user: {
-        id: user._id,
-        email: user.email,
-        username: user.username,
+        id,
+        email,
+        username,
       },
       token,
     };
   }
 
   static async login(email: string, password: string) {
-    const user = await User.findOne({ email });
+    // 查找用户
+    const user = db.select().from(users)
+      .where(eq(users.email, email))
+      .get();
+
     if (!user) {
       throw new Error('Invalid email or password');
     }
@@ -40,16 +58,22 @@ export class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    const token = this.generateToken(user._id.toString(), user.email);
+    const token = this.generateToken(user.id, user.email);
 
     return {
       user: {
-        id: user._id,
+        id: user.id,
         email: user.email,
         username: user.username,
       },
       token,
     };
+  }
+
+  static async findById(userId: string) {
+    return db.select().from(users)
+      .where(eq(users.id, userId))
+      .get();
   }
 
   static generateToken(userId: string, email: string): string {

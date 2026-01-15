@@ -1,6 +1,9 @@
 import { Response } from 'express';
-import { Note } from '../models/Note.js';
+import { db } from '../db/index.js';
+import { notes } from '../db/schema.js';
+import { eq, and, desc } from 'drizzle-orm';
 import { AuthRequest } from '../middleware/auth.js';
+import { randomUUID } from 'crypto';
 
 export class NoteController {
   static async getAll(req: AuthRequest, res: Response) {
@@ -9,19 +12,22 @@ export class NoteController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const notes = await Note.find({ userId: req.user.userId }).sort({
-        updatedAt: -1,
-      });
+      const results = db.select().from(notes)
+        .where(eq(notes.userId, req.user.userId))
+        .orderBy(desc(notes.updatedAt))
+        .all();
 
-      res.json({
-        success: true,
-        data: notes,
-      });
+      // 解析 JSON 字段
+      const parsed = results.map(n => ({
+        ...n,
+        _id: n.id,
+        tags: n.tags ? JSON.parse(n.tags) : [],
+        versions: n.versions ? JSON.parse(n.versions) : [],
+      }));
+
+      res.json({ success: true, data: parsed });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -31,27 +37,25 @@ export class NoteController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const note = await Note.findOne({
-        _id: req.params.id,
-        userId: req.user.userId,
-      });
+      const note = db.select().from(notes)
+        .where(and(eq(notes.id, req.params.id), eq(notes.userId, req.user.userId)))
+        .get();
 
       if (!note) {
-        return res.status(404).json({
-          success: false,
-          message: 'Note not found',
-        });
+        return res.status(404).json({ success: false, message: 'Note not found' });
       }
 
       res.json({
         success: true,
-        data: note,
+        data: {
+          ...note,
+          _id: note.id,
+          tags: note.tags ? JSON.parse(note.tags) : [],
+          versions: note.versions ? JSON.parse(note.versions) : [],
+        },
       });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -64,35 +68,38 @@ export class NoteController {
       const { title, content, type, tags } = req.body;
 
       if (!title || !content) {
-        return res.status(400).json({
-          success: false,
-          message: 'Title and content are required',
-        });
+        return res.status(400).json({ success: false, message: 'Title and content are required' });
       }
 
-      const note = await Note.create({
+      const id = randomUUID();
+      const now = new Date().toISOString();
+      const versions = [{ content, timestamp: now }];
+
+      db.insert(notes).values({
+        id,
         userId: req.user.userId,
         title,
         content,
         type: type || 'text',
-        tags: tags || [],
-        versions: [
-          {
-            content,
-            timestamp: new Date(),
-          },
-        ],
-      });
+        tags: JSON.stringify(tags || []),
+        versions: JSON.stringify(versions),
+        createdAt: now,
+        updatedAt: now,
+      }).run();
+
+      const note = db.select().from(notes).where(eq(notes.id, id)).get();
 
       res.status(201).json({
         success: true,
-        data: note,
+        data: {
+          ...note,
+          _id: id,
+          tags: tags || [],
+          versions,
+        },
       });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -102,43 +109,46 @@ export class NoteController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const note = await Note.findOne({
-        _id: req.params.id,
-        userId: req.user.userId,
-      });
+      const note = db.select().from(notes)
+        .where(and(eq(notes.id, req.params.id), eq(notes.userId, req.user.userId)))
+        .get();
 
       if (!note) {
-        return res.status(404).json({
-          success: false,
-          message: 'Note not found',
-        });
+        return res.status(404).json({ success: false, message: 'Note not found' });
       }
 
-      // Add to version history if content changed
+      const now = new Date().toISOString();
+      const updates: any = { updatedAt: now };
+
+      // 解析现有 versions
+      let versions = note.versions ? JSON.parse(note.versions) : [];
+
+      // 如果 content 改变了，添加版本
       if (req.body.content && req.body.content !== note.content) {
-        note.versions.push({
-          content: req.body.content,
-          timestamp: new Date(),
-        });
+        versions.push({ content: req.body.content, timestamp: now });
+        updates.versions = JSON.stringify(versions);
+        updates.content = req.body.content;
       }
 
-      // Update fields
-      if (req.body.title) note.title = req.body.title;
-      if (req.body.content) note.content = req.body.content;
-      if (req.body.type) note.type = req.body.type;
-      if (req.body.tags) note.tags = req.body.tags;
+      if (req.body.title !== undefined) updates.title = req.body.title;
+      if (req.body.type !== undefined) updates.type = req.body.type;
+      if (req.body.tags !== undefined) updates.tags = JSON.stringify(req.body.tags);
 
-      await note.save();
+      db.update(notes).set(updates).where(eq(notes.id, req.params.id)).run();
+
+      const updated = db.select().from(notes).where(eq(notes.id, req.params.id)).get();
 
       res.json({
         success: true,
-        data: note,
+        data: {
+          ...updated,
+          _id: updated?.id,
+          tags: updated?.tags ? JSON.parse(updated.tags) : [],
+          versions: updated?.versions ? JSON.parse(updated.versions) : [],
+        },
       });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -148,27 +158,19 @@ export class NoteController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const note = await Note.findOneAndDelete({
-        _id: req.params.id,
-        userId: req.user.userId,
-      });
+      const note = db.select().from(notes)
+        .where(and(eq(notes.id, req.params.id), eq(notes.userId, req.user.userId)))
+        .get();
 
       if (!note) {
-        return res.status(404).json({
-          success: false,
-          message: 'Note not found',
-        });
+        return res.status(404).json({ success: false, message: 'Note not found' });
       }
 
-      res.json({
-        success: true,
-        message: 'Note deleted',
-      });
+      db.delete(notes).where(eq(notes.id, req.params.id)).run();
+
+      res.json({ success: true, message: 'Note deleted' });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -178,27 +180,20 @@ export class NoteController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const note = await Note.findOne({
-        _id: req.params.id,
-        userId: req.user.userId,
-      });
+      const note = db.select().from(notes)
+        .where(and(eq(notes.id, req.params.id), eq(notes.userId, req.user.userId)))
+        .get();
 
       if (!note) {
-        return res.status(404).json({
-          success: false,
-          message: 'Note not found',
-        });
+        return res.status(404).json({ success: false, message: 'Note not found' });
       }
 
       res.json({
         success: true,
-        data: note.versions,
+        data: note.versions ? JSON.parse(note.versions) : [],
       });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }

@@ -1,6 +1,9 @@
 import { Response } from 'express';
-import { Expense } from '../models/Expense.js';
+import { db } from '../db/index.js';
+import { expenses } from '../db/schema.js';
+import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { AuthRequest } from '../middleware/auth.js';
+import { randomUUID } from 'crypto';
 
 export class ExpenseController {
   static async getAll(req: AuthRequest, res: Response) {
@@ -9,29 +12,21 @@ export class ExpenseController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
+      let results = db.select().from(expenses)
+        .where(eq(expenses.userId, req.user.userId))
+        .orderBy(desc(expenses.date))
+        .all();
+
+      // 应用过滤
       const { category, status, startDate, endDate } = req.query;
-      const filter: any = { userId: req.user.userId };
+      if (category) results = results.filter(e => e.category === category);
+      if (status) results = results.filter(e => e.status === status);
+      if (startDate) results = results.filter(e => e.date && e.date >= (startDate as string));
+      if (endDate) results = results.filter(e => e.date && e.date <= (endDate as string));
 
-      if (category) filter.category = category;
-      if (status) filter.status = status;
-
-      if (startDate || endDate) {
-        filter.date = {};
-        if (startDate) filter.date.$gte = new Date(startDate as string);
-        if (endDate) filter.date.$lte = new Date(endDate as string);
-      }
-
-      const expenses = await Expense.find(filter).sort({ date: -1 });
-
-      res.json({
-        success: true,
-        data: expenses,
-      });
+      res.json({ success: true, data: results.map(e => ({ ...e, _id: e.id })) });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -42,52 +37,38 @@ export class ExpenseController {
       }
 
       const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-      const [categoryStats, monthlyTotal] = await Promise.all([
-        Expense.aggregate([
-          {
-            $match: {
-              userId: req.user.userId,
-              date: { $gte: startOfMonth },
-            },
-          },
-          {
-            $group: {
-              _id: '$category',
-              total: { $sum: '$amount' },
-              count: { $sum: 1 },
-            },
-          },
-        ]),
-        Expense.aggregate([
-          {
-            $match: {
-              userId: req.user.userId,
-              date: { $gte: startOfMonth },
-            },
-          },
-          {
-            $group: {
-              _id: null,
-              total: { $sum: '$amount' },
-            },
-          },
-        ]),
-      ]);
+      const allExpenses = db.select().from(expenses)
+        .where(and(
+          eq(expenses.userId, req.user.userId),
+          gte(expenses.date, startOfMonth)
+        ))
+        .all();
+
+      // 计算分类统计
+      const categoryMap = new Map<string, { total: number; count: number }>();
+      let monthlyTotal = 0;
+
+      allExpenses.forEach(exp => {
+        monthlyTotal += exp.amount;
+        const existing = categoryMap.get(exp.category) || { total: 0, count: 0 };
+        existing.total += exp.amount;
+        existing.count += 1;
+        categoryMap.set(exp.category, existing);
+      });
+
+      const categoryStats = Array.from(categoryMap.entries()).map(([cat, stats]) => ({
+        _id: cat,
+        ...stats,
+      }));
 
       res.json({
         success: true,
-        data: {
-          categoryStats,
-          monthlyTotal: monthlyTotal[0]?.total || 0,
-        },
+        data: { categoryStats, monthlyTotal },
       });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -97,31 +78,32 @@ export class ExpenseController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const { amount, category, description } = req.body;
+      const { amount, category, description, date } = req.body;
 
       if (!amount || !category) {
-        return res.status(400).json({
-          success: false,
-          message: 'Amount and category are required',
-        });
+        return res.status(400).json({ success: false, message: 'Amount and category are required' });
       }
 
-      const expense = await Expense.create({
+      const id = randomUUID();
+      const now = new Date().toISOString();
+
+      db.insert(expenses).values({
+        id,
         userId: req.user.userId,
         amount,
         category,
         description: description || '',
-      });
+        date: date || now,
+        status: 'pending',
+        createdAt: now,
+        updatedAt: now,
+      }).run();
 
-      res.status(201).json({
-        success: true,
-        data: expense,
-      });
+      const expense = db.select().from(expenses).where(eq(expenses.id, id)).get();
+
+      res.status(201).json({ success: true, data: { ...expense, _id: id } });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -131,28 +113,28 @@ export class ExpenseController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const expense = await Expense.findOneAndUpdate(
-        { _id: req.params.id, userId: req.user.userId },
-        req.body,
-        { new: true, runValidators: true }
-      );
+      const existing = db.select().from(expenses)
+        .where(and(eq(expenses.id, req.params.id), eq(expenses.userId, req.user.userId)))
+        .get();
 
-      if (!expense) {
-        return res.status(404).json({
-          success: false,
-          message: 'Expense not found',
-        });
+      if (!existing) {
+        return res.status(404).json({ success: false, message: 'Expense not found' });
       }
 
-      res.json({
-        success: true,
-        data: expense,
-      });
+      const updates: any = { updatedAt: new Date().toISOString() };
+      if (req.body.amount !== undefined) updates.amount = req.body.amount;
+      if (req.body.category !== undefined) updates.category = req.body.category;
+      if (req.body.description !== undefined) updates.description = req.body.description;
+      if (req.body.date !== undefined) updates.date = req.body.date;
+      if (req.body.status !== undefined) updates.status = req.body.status;
+
+      db.update(expenses).set(updates).where(eq(expenses.id, req.params.id)).run();
+
+      const expense = db.select().from(expenses).where(eq(expenses.id, req.params.id)).get();
+
+      res.json({ success: true, data: { ...expense, _id: expense?.id } });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -162,27 +144,19 @@ export class ExpenseController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const expense = await Expense.findOneAndDelete({
-        _id: req.params.id,
-        userId: req.user.userId,
-      });
+      const existing = db.select().from(expenses)
+        .where(and(eq(expenses.id, req.params.id), eq(expenses.userId, req.user.userId)))
+        .get();
 
-      if (!expense) {
-        return res.status(404).json({
-          success: false,
-          message: 'Expense not found',
-        });
+      if (!existing) {
+        return res.status(404).json({ success: false, message: 'Expense not found' });
       }
 
-      res.json({
-        success: true,
-        message: 'Expense deleted',
-      });
+      db.delete(expenses).where(eq(expenses.id, req.params.id)).run();
+
+      res.json({ success: true, message: 'Expense deleted' });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -192,34 +166,34 @@ export class ExpenseController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const { expenses } = req.body;
+      const { expenses: expenseItems } = req.body;
 
-      if (!Array.isArray(expenses)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Expenses array is required',
-        });
+      if (!Array.isArray(expenseItems)) {
+        return res.status(400).json({ success: false, message: 'Expenses array is required' });
       }
 
-      const expensesWithUserId = expenses.map((exp: any) => ({
-        ...exp,
-        userId: req.user?.userId,
-      }));
+      const now = new Date().toISOString();
+      const created: any[] = [];
 
-      const created = await Expense.insertMany(expensesWithUserId);
-
-      res.status(201).json({
-        success: true,
-        data: {
-          count: created.length,
-          expenses: created,
-        },
+      expenseItems.forEach((exp: any) => {
+        const id = randomUUID();
+        db.insert(expenses).values({
+          id,
+          userId: req.user!.userId,
+          amount: exp.amount,
+          category: exp.category,
+          description: exp.description || '',
+          date: exp.date || now,
+          status: exp.status || 'pending',
+          createdAt: now,
+          updatedAt: now,
+        }).run();
+        created.push({ ...exp, id, _id: id });
       });
+
+      res.status(201).json({ success: true, data: { count: created.length, expenses: created } });
     } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }

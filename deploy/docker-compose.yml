@@ -1,27 +1,9 @@
 # Administrative Workbench - 生产部署
-# 使用预构建的全栈镜像（前后端合一）
+# 单一镜像，使用 SQLite（无需 MongoDB）
 
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:7
-    container_name: awb-mongodb
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
-    volumes:
-      - mongodb_data:/data/db
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/admin --quiet
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-    networks:
-      - awb-network
-
   app:
     image: ghcr.io/whatwoods/administrative-workbench:latest
     container_name: awb-app
@@ -29,19 +11,11 @@ services:
     ports:
       - "${APP_PORT:-80}:80"
     environment:
-      MONGODB_URI: mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-changeme}@mongodb:27017/admin-workbench?authSource=admin
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
       NODE_ENV: production
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    networks:
-      - awb-network
-
-networks:
-  awb-network:
-    driver: bridge
+    volumes:
+      - awb_data:/app/data # SQLite 数据持久化
 
 volumes:
-  mongodb_data:
+  awb_data:
     driver: local

@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
-import { connectDB } from './config/database.js';
+import { initDB } from './db/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { RealtimeService } from './services/realtimeService.js';
 
@@ -29,12 +29,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 数据库连接
-connectDB();
+// 初始化 SQLite 数据库
+initDB();
 
 // 健康检查
 app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', timestamp: new Date() });
+  res.json({ status: 'ok', timestamp: new Date(), database: 'sqlite' });
 });
 
 // WebSocket 状态检查
@@ -61,6 +61,7 @@ app.use(errorHandler);
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`WebSocket server initialized`);
+  console.log(`Database: SQLite`);
 });
 
 export default app;
