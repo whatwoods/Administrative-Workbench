@@ -1,108 +1,110 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 
-interface WeatherData {
-  temp: number;
-  condition: string;
-  humidity: number;
-  windSpeed: number;
-  sunset: string;
-  location: string;
-}
-
-interface Forecast {
-  date: string;
-  high: number;
-  low: number;
-  condition: string;
-  precipitation: number;
-}
-
-interface SolarTerm {
-  name: string;
-  date: string;
-  daysUntil: number;
-  description: string;
-}
+// WMO 天气代码对应中文描述
+const WMO_CODE_MAP: Record<number, string> = {
+  0: '晴朗',
+  1: '主要晴朗',
+  2: '部分多云',
+  3: '阴天',
+  45: '雾',
+  48: '沉积雾',
+  51: '轻微毛毛雨',
+  53: '中等毛毛雨',
+  55: '密集毛毛雨',
+  56: '轻微冷毛毛雨',
+  57: '密集冷毛毛雨',
+  61: '小雨',
+  63: '中雨',
+  65: '大雨',
+  66: '轻微冷雨',
+  67: '强度冷雨',
+  71: '小雪',
+  73: '中雪',
+  75: '大雪',
+  77: '雪粒',
+  80: '阵雨',
+  81: '强阵雨',
+  82: '极强阵雨',
+  85: '阵雪',
+  86: '强阵雪',
+  95: '雷暴',
+  96: '雷暴伴有小冰雹',
+  99: '雷暴伴有大冰雹',
+};
 
 // 农历二十四节气数据
-const SOLAR_TERMS_2024 = [
-  { name: '立春', date: '2024-02-04', description: '春季开始' },
-  { name: '雨水', date: '2024-02-19', description: '雨水增加' },
-  { name: '惊蛰', date: '2024-03-05', description: '春雷惊蛰' },
-  { name: '春分', date: '2024-03-20', description: '昼夜平分' },
-  { name: '清明', date: '2024-04-04', description: '清明时节' },
-  { name: '谷雨', date: '2024-04-20', description: '谷雨润物' },
-  { name: '立夏', date: '2024-05-05', description: '夏季开始' },
-  { name: '小满', date: '2024-05-20', description: '小满小满，麦粒渐满' },
-  { name: '芒种', date: '2024-06-05', description: '有芒麦种' },
-  { name: '夏至', date: '2024-06-21', description: '夏至日长' },
-  { name: '小暑', date: '2024-07-06', description: '小暑炎蒸' },
-  { name: '大暑', date: '2024-07-23', description: '大暑似火' },
-  { name: '立秋', date: '2024-08-07', description: '秋季开始' },
-  { name: '处暑', date: '2024-08-23', description: '处暑炎消' },
-  { name: '白露', date: '2024-09-07', description: '白露秋分' },
-  { name: '秋分', date: '2024-09-23', description: '昼夜平分' },
-  { name: '寒露', date: '2024-10-08', description: '寒露冷空' },
-  { name: '霜降', date: '2024-10-23', description: '霜降霜秋' },
-  { name: '立冬', date: '2024-11-07', description: '冬季开始' },
-  { name: '小雪', date: '2024-11-22', description: '小雪晶莹' },
-  { name: '大雪', date: '2024-12-07', description: '大雪纷飞' },
-  { name: '冬至', date: '2024-12-21', description: '冬至日短' },
+const SOLAR_TERMS_2026 = [
+  { name: '立春', date: '2026-02-04', description: '春季开始' },
+  { name: '雨水', date: '2026-02-18', description: '雨水增加' },
+  { name: '惊蛰', date: '2026-03-05', description: '春雷惊蛰' },
+  { name: '春分', date: '2026-03-20', description: '昼夜平分' },
+  { name: '清明', date: '2026-04-04', description: '清明时节' },
+  { name: '谷雨', date: '2026-04-20', description: '谷雨润物' },
+  { name: '立夏', date: '2026-05-05', description: '夏季开始' },
+  { name: '小满', date: '2026-05-21', description: '小满小满，麦粒渐满' },
+  { name: '芒种', date: '2026-06-05', description: '有芒麦种' },
+  { name: '夏至', date: '2026-06-21', description: '夏至日长' },
+  { name: '小暑', date: '2026-07-07', description: '小暑炎蒸' },
+  { name: '大暑', date: '2026-07-22', description: '大暑似火' },
+  { name: '立秋', date: '2026-08-07', description: '秋季开始' },
+  { name: '处暑', date: '2026-08-23', description: '处暑炎消' },
+  { name: '白露', date: '2026-09-07', description: '白露秋分' },
+  { name: '秋分', date: '2026-09-23', description: '昼夜平分' },
+  { name: '寒露', date: '2026-10-08', description: '寒露冷空' },
+  { name: '霜降', date: '2026-10-23', description: '霜降霜秋' },
+  { name: '立冬', date: '2026-11-07', description: '冬季开始' },
+  { name: '小雪', date: '2026-11-22', description: '小雪晶莹' },
+  { name: '大雪', date: '2026-12-07', description: '大雪纷飞' },
+  { name: '冬至', date: '2026-12-21', description: '冬至日短' },
 ];
 
-// 模拟天气数据生成
-const generateMockWeather = (): WeatherData => {
-  const conditions = ['晴朗', '多云', '阴天', '小雨', '中雨', '大雨'];
-  return {
-    temp: Math.floor(Math.random() * 30) + 5,
-    condition: conditions[Math.floor(Math.random() * conditions.length)],
-    humidity: Math.floor(Math.random() * 100),
-    windSpeed: Math.floor(Math.random() * 25),
-    sunset: '18:30',
-    location: '北京',
-  };
-};
+// 默认坐标（芜湖）
+const DEFAULT_LAT = 31.3333;
+const DEFAULT_LON = 118.3833;
+const DEFAULT_CITY = '芜湖';
 
-// 生成天气预报
-const generateForecast = (days: number): Forecast[] => {
-  const conditions = ['晴朗', '多云', '阴天', '小雨', '中雨'];
-  const forecast: Forecast[] = [];
-
-  for (let i = 0; i < days; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-
-    forecast.push({
-      date: date.toISOString().split('T')[0],
-      high: Math.floor(Math.random() * 15) + 15,
-      low: Math.floor(Math.random() * 10) + 5,
-      condition: conditions[Math.floor(Math.random() * conditions.length)],
-      precipitation: Math.floor(Math.random() * 100),
-    });
+/**
+ * 获取地理坐标
+ */
+async function getCoordinates(city: string) {
+  try {
+    const response = await axios.get(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh&format=json`);
+    if (response.data.results && response.data.results.length > 0) {
+      const result = response.data.results[0];
+      return {
+        lat: result.latitude,
+        lon: result.longitude,
+        name: result.name
+      };
+    }
+  } catch (error) {
+    console.error('Geocoding error:', error);
   }
-
-  return forecast;
-};
-
-// 计算距离节气的天数
-const calculateDaysUntil = (solarTermDate: string): number => {
-  const today = new Date();
-  const termDate = new Date(solarTermDate);
-  const diffTime = termDate.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-};
+  return { lat: DEFAULT_LAT, lon: DEFAULT_LON, name: DEFAULT_CITY };
+}
 
 export const weatherController = {
   // 获取当前天气
-  getCurrent: (req: Request, res: Response) => {
+  getCurrent: async (req: Request, res: Response) => {
     try {
-      const weatherData = generateMockWeather();
+      const city = (req.query.city as string) || DEFAULT_CITY;
+      const { lat, lon, name } = await getCoordinates(city);
+
+      const response = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
+
+      const current = response.data.current;
+
       res.json({
         success: true,
-        data: weatherData,
-        timestamp: new Date().toISOString(),
+        data: {
+          temp: Math.round(current.temperature_2m),
+          condition: WMO_CODE_MAP[current.weather_code] || '未知',
+          humidity: current.relative_humidity_2m,
+          windSpeed: current.wind_speed_10m,
+          location: name,
+          timestamp: current.time,
+        },
       });
     } catch (error) {
       res.status(500).json({
@@ -114,18 +116,23 @@ export const weatherController = {
   },
 
   // 获取天气预报
-  getForecast: (req: Request, res: Response) => {
+  getForecast: async (req: Request, res: Response) => {
     try {
-      const days = parseInt(req.query.days as string) || 5;
+      const city = (req.query.city as string) || DEFAULT_CITY;
+      const days = parseInt(req.query.days as string) || 7;
+      const { lat, lon } = await getCoordinates(city);
 
-      if (days < 1 || days > 15) {
-        return res.status(400).json({
-          success: false,
-          message: '预报天数应在 1-15 天之间',
-        });
-      }
+      const response = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=${days}`);
 
-      const forecast = generateForecast(days);
+      const daily = response.data.daily;
+      const forecast = daily.time.map((date: string, index: number) => ({
+        date,
+        high: Math.round(daily.temperature_2m_max[index]),
+        low: Math.round(daily.temperature_2m_min[index]),
+        condition: WMO_CODE_MAP[daily.weather_code[index]] || '未知',
+        precipitation: daily.precipitation_probability_max[index] || 0,
+      }));
+
       res.json({
         success: true,
         data: forecast,
@@ -143,12 +150,16 @@ export const weatherController = {
   // 获取节气信息
   getSolarTerms: (req: Request, res: Response) => {
     try {
-      const solarTerms: SolarTerm[] = SOLAR_TERMS_2024.map((term) => ({
-        name: term.name,
-        date: term.date,
-        daysUntil: calculateDaysUntil(term.date),
-        description: term.description,
-      })).filter(term => term.daysUntil >= -30 && term.daysUntil <= 365)
+      const now = new Date();
+      const solarTerms = SOLAR_TERMS_2026.map((term) => {
+        const termDate = new Date(term.date);
+        const diffTime = termDate.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return {
+          ...term,
+          daysUntil: diffDays,
+        };
+      }).filter(term => term.daysUntil >= -5 && term.daysUntil <= 365)
         .sort((a, b) => a.daysUntil - b.daysUntil);
 
       res.json({
@@ -166,23 +177,36 @@ export const weatherController = {
   },
 
   // 获取空气质量指数
-  getAirQuality: (req: Request, res: Response) => {
+  getAirQuality: async (req: Request, res: Response) => {
     try {
-      const aqiLevels = [
-        { level: '优', aqi: Math.floor(Math.random() * 50), color: '#00e400' },
-        { level: '良', aqi: 50 + Math.floor(Math.random() * 50), color: '#ffff00' },
-        { level: '轻度污染', aqi: 100 + Math.floor(Math.random() * 50), color: '#ff7e00' },
-        { level: '中度污染', aqi: 150 + Math.floor(Math.random() * 50), color: '#ff0000' },
-      ];
+      const city = (req.query.city as string) || DEFAULT_CITY;
+      const { lat, lon, name } = await getCoordinates(city);
 
-      const quality = aqiLevels[Math.floor(Math.random() * aqiLevels.length)];
+      const response = await axios.get(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`);
+
+      const aqi = response.data.current.us_aqi;
+      let level = '优';
+      let color = '#00e400';
+
+      if (aqi > 50 && aqi <= 100) {
+        level = '良';
+        color = '#ffff00';
+      } else if (aqi > 100 && aqi <= 150) {
+        level = '轻度污染';
+        color = '#ff7e00';
+      } else if (aqi > 150) {
+        level = '中度污染';
+        color = '#ff0000';
+      }
 
       res.json({
         success: true,
         data: {
-          ...quality,
+          level,
+          aqi,
+          color,
+          location: name,
           timestamp: new Date().toISOString(),
-          location: '北京',
         },
       });
     } catch (error) {
@@ -194,15 +218,24 @@ export const weatherController = {
     }
   },
 
-  // 获取健康指数（日光、穿衣、洗车等）
-  getHealthIndex: (req: Request, res: Response) => {
+  // 获取健康指数
+  getHealthIndex: async (req: Request, res: Response) => {
     try {
+      const city = (req.query.city as string) || DEFAULT_CITY;
+      const { lat, lon } = await getCoordinates(city);
+
+      // 获取紫外线和天气状况
+      const response = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=uv_index_max,weather_code&timezone=auto&forecast_days=1`);
+
+      const uv = response.data.daily.uv_index_max[0];
+      const code = response.data.daily.weather_code[0];
+
       const indices = [
-        { index: '日光', level: '强', description: '阳光充足，紫外线较强' },
-        { index: '穿衣', level: '舒适', description: '建议穿着短袖或轻薄衣物' },
-        { index: '洗车', level: '适宜', description: '天气较好，适合洗车' },
-        { index: '运动', level: '适宜', description: '天气良好，适合户外运动' },
-        { index: '感冒', level: '低', description: '温度适宜，感冒指数低' },
+        { index: '紫外线', level: uv > 6 ? '强' : uv > 3 ? '中等' : '弱', description: `当前紫外线指数为 ${uv}` },
+        { index: '穿衣', level: '舒适', description: '建议参考气温变化穿着' },
+        { index: '洗车', level: (code >= 51) ? '不宜' : '适宜', description: (code >= 51) ? '有雨，不建议洗车' : '天气良好，适合洗车' },
+        { index: '运动', level: (code >= 51) ? '较不宜' : '适宜', description: (code >= 51) ? '天气欠佳，建议室内运动' : '天气良好，适合户外运动' },
+        { index: '感冒', level: '低', description: '适时增减衣物，预防感冒' },
       ];
 
       res.json({
