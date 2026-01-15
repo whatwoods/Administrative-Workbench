@@ -17,7 +17,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const token = this.generateToken(user._id as string, user.email);
+    const token = this.generateToken(user._id.toString(), user.email);
 
     return {
       user: {
@@ -40,7 +40,7 @@ export class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    const token = this.generateToken(user._id as string, user.email);
+    const token = this.generateToken(user._id.toString(), user.email);
 
     return {
       user: {
@@ -56,7 +56,7 @@ export class AuthService {
     return jwt.sign(
       { userId, email },
       process.env.JWT_SECRET || 'secret',
-      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+      { expiresIn: process.env.JWT_EXPIRE || '7d' } as jwt.SignOptions
     );
   }
 }
