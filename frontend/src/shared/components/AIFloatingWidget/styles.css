@@ -1,0 +1,173 @@
+/* =============================================================================
+   AI Floating Button
+   ============================================================================= */
+
+.ai-floating-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+
+.ai-floating-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+}
+
+.ai-floating-btn:hover .ai-floating-hint {
+    opacity: 1;
+    transform: translateX(-10px);
+}
+
+.ai-floating-hint {
+    position: absolute;
+    right: 100%;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    margin-right: 8px;
+}
+
+/* =============================================================================
+   AI Floating Window
+   ============================================================================= */
+
+.ai-floating-window {
+    position: fixed;
+    width: 400px;
+    height: 600px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    resize: both;
+    min-width: 320px;
+    min-height: 400px;
+}
+
+.ai-floating-window.minimized {
+    height: auto;
+    min-height: unset;
+}
+
+.ai-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: grab;
+    user-select: none;
+}
+
+.ai-widget-header:active {
+    cursor: grabbing;
+}
+
+.ai-widget-header span {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.ai-widget-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.ai-widget-controls button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.ai-widget-controls button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.ai-widget-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-widget-content .ai-assistant {
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* =============================================================================
+   Responsive
+   ============================================================================= */
+
+@media (max-width: 768px) {
+    .ai-floating-window {
+        width: calc(100% - 20px);
+        height: calc(100% - 100px);
+        left: 10px !important;
+        top: 50px !important;
+        right: 10px;
+    }
+
+    .ai-floating-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .ai-floating-hint {
+        display: none;
+    }
+}
+
+/* =============================================================================
+   Animation
+   ============================================================================= */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ai-floating-window {
+    animation: fadeInUp 0.3s ease;
+}

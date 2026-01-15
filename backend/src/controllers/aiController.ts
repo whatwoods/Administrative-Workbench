@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { LLMService } from '../services/llmService.js';
+import { AIAgentService, AGENT_TOOLS } from '../services/aiAgentService.js';
 
 interface ConversationMessage {
   role: 'user' | 'assistant';
@@ -7,8 +8,13 @@ interface ConversationMessage {
   timestamp?: string;
 }
 
+// 扩展 Request 类型以包含 user
+interface AuthenticatedRequest extends Request {
+  user?: { id: string; username: string };
+}
+
 export const aiController = {
-  // 获取 AI 响应
+  // 获取 AI 响应（简单模式）
   getResponse: async (req: Request, res: Response) => {
     try {
       const { message, history } = req.body;
@@ -62,6 +68,55 @@ export const aiController = {
       res.status(500).json({
         success: false,
         message: error.message || '获取 AI 响应失败',
+      });
+    }
+  },
+
+  // Agent 模式对话（支持工具调用）
+  agentChat: async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { message, history } = req.body;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: '请先登录',
+        });
+      }
+
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: '请提供有效的消息内容',
+        });
+      }
+
+      if (message.length > 2000) {
+        return res.status(400).json({
+          success: false,
+          message: '消息过长，请保持在 2000 字符以内',
+        });
+      }
+
+      // 调用 AI Agent 服务
+      const response = await AIAgentService.execute(message, userId, history || []);
+
+      res.json({
+        success: true,
+        data: {
+          userMessage: message,
+          assistantMessage: response.message,
+          toolCalls: response.toolCalls,
+          suggestions: response.suggestions,
+          timestamp: response.timestamp,
+        },
+      });
+    } catch (error: any) {
+      console.error('AI Agent Error:', error.message);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'AI Agent 处理失败',
       });
     }
   },
@@ -153,6 +208,7 @@ export const aiController = {
           { command: '天气预报', description: '获取天气和节气信息' },
           { command: '分析支出', description: '分析费用和支出趋势' },
         ],
+        tools: AGENT_TOOLS.map(t => ({ name: t.name, description: t.description })),
         provider: process.env.LLM_PROVIDER || 'tencent',
         model: process.env.LLM_MODEL || 'deepseek-v3.2',
       };
@@ -170,3 +226,4 @@ export const aiController = {
     }
   },
 };
+

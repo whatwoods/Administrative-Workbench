@@ -166,4 +166,22 @@ export class WeatherService {
             { index: '感冒', level: '低', description: '适时增减衣物，预防感冒' },
         ];
     }
+
+    /**
+     * 获取城市天气综合信息（供 AI Agent 使用）
+     */
+    static async getWeatherByCity(city: string = DEFAULT_CITY) {
+        const [current, forecast, airQuality] = await Promise.all([
+            this.getCurrent(city),
+            this.getForecast(city, 3),
+            this.getAirQuality(city)
+        ]);
+
+        return {
+            current,
+            forecast,
+            airQuality,
+            summary: `${current.location}当前${current.condition}，温度${current.temp}°C，湿度${current.humidity}%，空气质量${airQuality.level}。`
+        };
+    }
 }
