@@ -7,6 +7,7 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/', NoteController.getAll);
+router.get('/search', NoteController.search);
 router.get('/:id', NoteController.getById);
 router.get('/:id/versions', NoteController.getVersions);
 router.post('/', NoteController.create);

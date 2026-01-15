@@ -119,6 +119,79 @@ export class LLMService {
     }
 
     /**
+     * 获取文本向量 (Embeddings)
+     */
+    static async getEmbeddings(texts: string[]): Promise<number[][]> {
+        const config = getConfig();
+
+        if (!config.apiKey || config.provider !== 'siliconflow') {
+            // 目前仅 SiliconFlow 支持向量 API，或者模拟返回空向量
+            console.warn('Embedding API only supported on SiliconFlow or API key missing.');
+            return texts.map(() => []);
+        }
+
+        try {
+            const response = await axios.post(
+                `${config.baseUrl}/embeddings`,
+                {
+                    model: 'BAAI/bge-m3', // 固定使用 BGE-M3
+                    input: texts,
+                    encoding_format: 'float'
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${config.apiKey}`,
+                    },
+                    timeout: 30000,
+                }
+            );
+
+            return response.data.data.map((item: any) => item.embedding);
+        } catch (error: any) {
+            console.error('Embedding API Error:', error.response?.data || error.message);
+            throw new Error(`Embedding 服务暂时不可用: ${error.response?.data?.error?.message || error.message}`);
+        }
+    }
+
+    /**
+     * 重排序 (Rerank)
+     */
+    static async rerank(query: string, documents: string[], topN: number = 5): Promise<{ index: number; relevance_score: number }[]> {
+        const config = getConfig();
+
+        if (!config.apiKey || config.provider !== 'siliconflow') {
+            console.warn('Rerank API only supported on SiliconFlow or API key missing.');
+            return documents.map((_, index) => ({ index, relevance_score: 0 })).slice(0, topN);
+        }
+
+        try {
+            const response = await axios.post(
+                `${config.baseUrl}/rerank`,
+                {
+                    model: 'BAAI/bge-reranker-v2-m3',
+                    query: query,
+                    documents: documents,
+                    top_n: topN,
+                    return_documents: false
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${config.apiKey}`,
+                    },
+                    timeout: 30000,
+                }
+            );
+
+            return response.data.results;
+        } catch (error: any) {
+            console.error('Rerank API Error:', error.response?.data || error.message);
+            throw new Error(`Rerank 服务暂时不可用: ${error.response?.data?.error?.message || error.message}`);
+        }
+    }
+
+    /**
      * 模拟响应（无 API Key 时使用）
      */
     private static getMockResponse(messages: ChatMessage[]): LLMResponse {

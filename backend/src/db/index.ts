@@ -74,6 +74,7 @@ export const initDB = () => {
       type TEXT DEFAULT 'text',
       tags TEXT,
       versions TEXT,
+      embedding TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -94,7 +95,20 @@ export const initDB = () => {
     CREATE INDEX IF NOT EXISTS idx_expenses_user_id ON expenses(user_id);
     CREATE INDEX IF NOT EXISTS idx_notes_user_id ON notes(user_id);
     CREATE INDEX IF NOT EXISTS idx_navigations_user_id ON navigations(user_id);
+    CREATE INDEX IF NOT EXISTS idx_navigations_user_id ON navigations(user_id);
   `);
+
+  // 检查并添加 embedding 字段 (Migration)
+  try {
+    const tableInfo = sqliteDb.pragma('table_info(notes)') as any[];
+    const hasEmbedding = tableInfo.some(col => col.name === 'embedding');
+    if (!hasEmbedding) {
+      console.log('Adding embedding column to notes table...');
+      sqliteDb.exec('ALTER TABLE notes ADD COLUMN embedding TEXT');
+    }
+  } catch (error) {
+    console.error('Schema migration error:', error);
+  }
 
   console.log('Database tables created/verified');
 };

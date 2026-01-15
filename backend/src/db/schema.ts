@@ -52,9 +52,11 @@ export const notes = sqliteTable('notes', {
     type: text('type').default('text'), // text, draw
     tags: text('tags'), // JSON string
     versions: text('versions'), // JSON string
+    embedding: text('embedding'), // JSON string of vector numbers
     createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
     updatedAt: text('updated_at').default('CURRENT_TIMESTAMP'),
 });
+
 
 // Navigation 表
 export const navigations = sqliteTable('navigations', {
