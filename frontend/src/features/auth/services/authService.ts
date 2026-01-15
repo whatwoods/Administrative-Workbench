@@ -1,5 +1,15 @@
 import apiClient from '@/shared/services/api';
-import type { User, AuthResponse } from '../types';
+
+export interface User {
+    id: string;
+    email: string;
+    username: string;
+}
+
+export interface AuthResponse {
+    user: User;
+    token: string;
+}
 
 export const authService = {
     register: (email: string, username: string, password: string) =>

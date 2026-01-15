@@ -1,5 +1,16 @@
 import { create } from 'zustand';
-import type { AuthState } from '../types';
+import { User } from '../services/authService';
+
+interface AuthState {
+    user: User | null;
+    token: string | null;
+    isLoading: boolean;
+    setUser: (user: User | null) => void;
+    setToken: (token: string | null) => void;
+    setLoading: (loading: boolean) => void;
+    login: (user: User, token: string) => void;
+    logout: () => void;
+}
 
 export const useAuthStore = create<AuthState>((set) => ({
     user: localStorage.getItem('user')

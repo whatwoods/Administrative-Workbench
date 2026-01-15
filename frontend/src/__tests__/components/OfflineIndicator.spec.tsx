@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import OfflineIndicator from '../../components/OfflineIndicator';
+import OfflineIndicator from '@/shared/components/OfflineIndicator';
 
 // Mock hooks
-vi.mock('../../hooks/useOfflineStatus', () => ({
+vi.mock('@/shared/hooks/useOfflineStatus', () => ({
   useOfflineStatus: () => ({
     isOnline: false,
     pendingSyncCount: 2,

@@ -1,9 +1,6 @@
 import { Response } from 'express';
-import { db } from '../db/index.js';
-import { navigations } from '../db/schema.js';
-import { eq, and, desc } from 'drizzle-orm';
 import { AuthRequest } from '../middleware/auth.js';
-import { randomUUID } from 'crypto';
+import { NavigationService } from '../services/navigationService.js';
 
 export class NavigationController {
   static async getAll(req: AuthRequest, res: Response) {
@@ -12,12 +9,8 @@ export class NavigationController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const results = db.select().from(navigations)
-        .where(eq(navigations.userId, req.user.userId))
-        .orderBy(navigations.category, navigations.order)
-        .all();
-
-      res.json({ success: true, data: results.map(n => ({ ...n, _id: n.id })) });
+      const data = await NavigationService.getAll(req.user.userId);
+      res.json({ success: true, data });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -35,31 +28,14 @@ export class NavigationController {
         return res.status(400).json({ success: false, message: 'Category, name, and url are required' });
       }
 
-      // 获取最大 order
-      const maxOrderResult = db.select({ order: navigations.order }).from(navigations)
-        .where(and(eq(navigations.userId, req.user.userId), eq(navigations.category, category)))
-        .orderBy(desc(navigations.order))
-        .limit(1)
-        .get();
-
-      const id = randomUUID();
-      const now = new Date().toISOString();
-
-      db.insert(navigations).values({
-        id,
-        userId: req.user.userId,
+      const nav = await NavigationService.create(req.user.userId, {
         category,
         name,
         url,
-        icon: icon || '',
-        order: (maxOrderResult?.order || 0) + 1,
-        createdAt: now,
-        updatedAt: now,
-      }).run();
+        icon
+      });
 
-      const nav = db.select().from(navigations).where(eq(navigations.id, id)).get();
-
-      res.status(201).json({ success: true, data: { ...nav, _id: id } });
+      res.status(201).json({ success: true, data: nav });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -71,26 +47,13 @@ export class NavigationController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const existing = db.select().from(navigations)
-        .where(and(eq(navigations.id, req.params.id), eq(navigations.userId, req.user.userId)))
-        .get();
+      const nav = await NavigationService.update(req.params.id, req.user.userId, req.body);
 
-      if (!existing) {
+      if (!nav) {
         return res.status(404).json({ success: false, message: 'Navigation item not found' });
       }
 
-      const updates: any = { updatedAt: new Date().toISOString() };
-      if (req.body.name !== undefined) updates.name = req.body.name;
-      if (req.body.url !== undefined) updates.url = req.body.url;
-      if (req.body.icon !== undefined) updates.icon = req.body.icon;
-      if (req.body.category !== undefined) updates.category = req.body.category;
-      if (req.body.order !== undefined) updates.order = req.body.order;
-
-      db.update(navigations).set(updates).where(eq(navigations.id, req.params.id)).run();
-
-      const nav = db.select().from(navigations).where(eq(navigations.id, req.params.id)).get();
-
-      res.json({ success: true, data: { ...nav, _id: nav?.id } });
+      res.json({ success: true, data: nav });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -102,15 +65,11 @@ export class NavigationController {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
       }
 
-      const existing = db.select().from(navigations)
-        .where(and(eq(navigations.id, req.params.id), eq(navigations.userId, req.user.userId)))
-        .get();
+      const success = await NavigationService.delete(req.params.id, req.user.userId);
 
-      if (!existing) {
+      if (!success) {
         return res.status(404).json({ success: false, message: 'Navigation item not found' });
       }
-
-      db.delete(navigations).where(eq(navigations.id, req.params.id)).run();
 
       res.json({ success: true, message: 'Navigation item deleted' });
     } catch (error: any) {
@@ -130,11 +89,7 @@ export class NavigationController {
         return res.status(400).json({ success: false, message: 'Items array is required' });
       }
 
-      items.forEach((item: any, index: number) => {
-        db.update(navigations).set({ order: index }).where(
-          and(eq(navigations.id, item._id || item.id), eq(navigations.userId, req.user!.userId))
-        ).run();
-      });
+      await NavigationService.reorder(req.user.userId, items);
 
       res.json({ success: true, message: 'Navigation items reordered' });
     } catch (error: any) {

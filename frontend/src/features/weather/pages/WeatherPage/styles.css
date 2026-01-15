@@ -1,0 +1,444 @@
+.weather-page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.weather-page.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    font-size: 18px;
+    color: #999;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 32px;
+    color: #2c3e50;
+}
+
+.refresh-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.error-banner {
+    background: #fee;
+    color: #c33;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #c33;
+}
+
+.section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.section h2 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    color: #2c3e50;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 12px;
+}
+
+.card-header {
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 12px;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #2c3e50;
+}
+
+/* 当前天气卡片 */
+.weather-card {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.current-weather {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.weather-icon-section {
+    flex-shrink: 0;
+    color: #667eea;
+}
+
+.icon-large {
+    width: 120px;
+    height: 120px;
+}
+
+.weather-info {
+    flex: 1;
+}
+
+.main-info {
+    margin-bottom: 24px;
+}
+
+.temp-display {
+    font-size: 64px;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+}
+
+.condition-display {
+    font-size: 18px;
+    color: #7f8c8d;
+    margin-top: 8px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.detail {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    color: #667eea;
+}
+
+.detail>div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail label {
+    font-size: 12px;
+    color: #95a5a6;
+    font-weight: 600;
+}
+
+.detail value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 空气质量卡片 */
+.air-quality-card {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(26, 188, 156, 0.05) 100%);
+    border: 2px solid rgba(46, 204, 113, 0.1);
+}
+
+.air-quality-content {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.aqi-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 4px solid #2ecc71;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.aqi-value {
+    font-size: 48px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.aqi-level {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-top: 4px;
+}
+
+.aqi-description {
+    flex: 1;
+}
+
+.aqi-description>* {
+    margin: 0;
+}
+
+.aqi-description>div:first-child {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 12px;
+}
+
+.aqi-description p {
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+/* 预报网格 */
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.forecast-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.forecast-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.forecast-card .date {
+    font-size: 12px;
+    color: #7f8c8d;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.forecast-icon {
+    color: #3498db;
+    margin: 8px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.forecast-icon svg {
+    width: 48px;
+    height: 48px;
+}
+
+.forecast-card .temps {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 12px 0;
+    font-weight: 600;
+}
+
+.forecast-card .high {
+    color: #e74c3c;
+}
+
+.forecast-card .low {
+    color: #3498db;
+}
+
+.forecast-card .condition {
+    font-size: 13px;
+    color: #2c3e50;
+    margin: 8px 0;
+}
+
+.forecast-card .precipitation {
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* 健康指数 */
+.health-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.health-item {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.health-item h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.level-badge {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.health-item p {
+    margin: 0;
+    font-size: 13px;
+    color: #7f8c8d;
+    line-height: 1.5;
+}
+
+/* 节气列表 */
+.solar-terms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.solar-term-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.solar-term-item:hover {
+    background: #f0f2f5;
+    transform: translateX(4px);
+}
+
+.term-left h4 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.term-left p {
+    margin: 0;
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.term-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.date {
+    font-size: 12px;
+    color: #95a5a6;
+}
+
+.days-until {
+    font-size: 13px;
+    font-weight: 600;
+    color: #27ae60;
+    background: rgba(39, 174, 96, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.days-past {
+    font-size: 13px;
+    font-weight: 600;
+    color: #95a5a6;
+    background: rgba(149, 165, 166, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .weather-page {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .current-weather {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .icon-large {
+        width: 80px;
+        height: 80px;
+    }
+
+    .temp-display {
+        font-size: 48px;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .forecast-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+
+    .health-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .air-quality-content {
+        flex-direction: column;
+    }
+
+    .solar-term-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .term-right {
+        align-items: flex-start;
+    }
+}

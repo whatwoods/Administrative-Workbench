@@ -140,7 +140,7 @@
 ### 文档（全部完成）
 
 - [x] [README.md](../README.md) - 完整项目概述
-- [x] [QUICKSTART.md](../QUICKSTART.md) - 快速启动指南（400+行）
+- [x] [docs/README.md](./README.md) - 快速启动指南
 - [x] [DEPLOYMENT.md](../DEPLOYMENT.md) - 部署策略和指南
 - [x] [PROJECT_SUMMARY.md](../PROJECT_SUMMARY.md) - 项目总结
 - [x] [docs/ARCHITECTURE.md](ARCHITECTURE.md) - 架构设计文档
@@ -256,7 +256,7 @@
 
 ## 📅 版本发布
 
-### v1.0.0 (2024-01-15) - 首次发布 ✅
+### v1.0.0 (2026-01-15) - 首次发布 ✅
 **MVP 完整版本，所有核心功能实现**
 
 提交内容：
@@ -378,5 +378,5 @@ npm run e2e
 
 **项目状态**: ✨ **完全就绪** - 可以立即部署和使用！
 
-*最后更新: 2024-01-15*
+*最后更新: 2026-01-15*
 

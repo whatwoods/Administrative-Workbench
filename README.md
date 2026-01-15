@@ -108,7 +108,7 @@ npm run dev
 ```
 
 ---
-
+- 快速启动：[docs/README.md](docs/README.md)
 ## 🤝 贡献与反馈
 
 欢迎提交 Issue 或 Pull Request 来完善这个项目。
