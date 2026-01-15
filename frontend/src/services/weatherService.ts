@@ -6,6 +6,7 @@ export interface WeatherData {
   humidity: number;
   windSpeed: number;
   sunset: string;
+  location: string;
 }
 
 export interface Forecast {
@@ -13,12 +14,26 @@ export interface Forecast {
   high: number;
   low: number;
   condition: string;
+  precipitation: number;
 }
 
 export interface SolarTerm {
   name: string;
   date: string;
   daysUntil: number;
+  description: string;
+}
+
+export interface AirQuality {
+  level: string;
+  aqi: number;
+  color: string;
+}
+
+export interface HealthIndex {
+  index: string;
+  level: string;
+  description: string;
 }
 
 export const weatherService = {
@@ -26,4 +41,7 @@ export const weatherService = {
   getForecast: (days: number = 5) =>
     apiClient.get<Forecast[]>(`/weather/forecast?days=${days}`),
   getSolarTerms: () => apiClient.get<SolarTerm[]>('/weather/solar-terms'),
+  getAirQuality: () => apiClient.get<AirQuality>('/weather/air-quality'),
+  getHealthIndex: () => apiClient.get<HealthIndex[]>('/weather/health-index'),
 };
+

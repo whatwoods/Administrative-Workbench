@@ -8,6 +8,8 @@ import Sidebar from './components/Sidebar'
 import TodoPage from './pages/TodoPage'
 import ExpensePage from './pages/ExpensePage'
 import NotePage from './pages/NotePage'
+import WeatherPage from './pages/WeatherPage'
+import AIPage from './pages/AIPage'
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
                     <Route path="/todos" element={<TodoPage />} />
                     <Route path="/expenses" element={<ExpensePage />} />
                     <Route path="/notes" element={<NotePage />} />
+                    <Route path="/weather" element={<WeatherPage />} />
+                    <Route path="/ai" element={<AIPage />} />
                   </Routes>
                 </main>
               </div>

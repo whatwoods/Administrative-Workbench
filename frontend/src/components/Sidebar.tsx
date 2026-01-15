@@ -14,6 +14,7 @@ export default function Sidebar() {
     { label: 'Expenses', icon: '💰', path: '/expenses' },
     { label: 'Notes', icon: '📝', path: '/notes' },
     { label: 'Weather', icon: '🌤️', path: '/weather' },
+    { label: 'AI Assistant', icon: '🤖', path: '/ai' },
   ]
 
   return (

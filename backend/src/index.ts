@@ -10,8 +10,8 @@ import todoRoutes from './routes/todoRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
 import noteRoutes from './routes/noteRoutes.js';
 import navigationRoutes from './routes/navigationRoutes.js';
-// import weatherRoutes from './routes/weatherRoutes.js';
-// import aiRoutes from './routes/aiRoutes.js';
+import weatherRoutes from './routes/weatherRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 
 // 环境变量配置
 dotenv.config();
@@ -38,8 +38,8 @@ app.use('/api/todos', todoRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/navigation', navigationRoutes);
-// app.use('/api/weather', weatherRoutes);
-// app.use('/api/ai', aiRoutes);
+app.use('/api/weather', weatherRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 错误处理中间件
 app.use(errorHandler);

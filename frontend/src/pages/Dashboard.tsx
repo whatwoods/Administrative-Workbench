@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
+import WeatherWidget from '../components/WeatherWidget'
 import './Dashboard.css'
 
 export default function Dashboard() {
@@ -55,8 +56,11 @@ export default function Dashboard() {
 
       <section className="stats-section">
         <h2>快速统计</h2>
-        <div className="stats-placeholder">
-          <p>数据统计加载中...</p>
+        <div className="stats-container">
+          <WeatherWidget />
+          <div className="stats-placeholder">
+            <p>更多统计数据即将推出...</p>
+          </div>
         </div>
       </section>
     </div>
