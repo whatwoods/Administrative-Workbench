@@ -103,3 +103,111 @@ chmod -R 777 ./data
 1. **启用 HTTPS**：建议在宿主机使用 Nginx 或 1Panel 的 OpenResty 进行反向代理并配置 SSL。
 2. **修改 JWT 密钥**：切勿使用默认密钥，生产环境必须生成强随机字符串。
 3. **数据备份**：定期备份 `data/` 目录或 SQLite 数据库文件。
+
+---
+
+## 📦 1Panel 部署指南
+
+如果你使用 [1Panel](https://1panel.cn) 面板管理服务器，可以按以下方法部署。
+
+### 方式一：Docker Compose 编排（推荐）
+
+1. 进入 **容器** -> **编排** -> **创建编排**
+2. 粘贴以下内容：
+
+```yaml
+version: '3.8'
+services:
+  awb-app:
+    image: ghcr.io/whatwoods/administrative-workbench:latest
+    container_name: awb-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - JWT_SECRET=你的随机密钥
+      - NODE_ENV=production
+      - LLM_PROVIDER=tencent
+      - LLM_API_KEY=你的API密钥
+    volumes:
+      - ./data:/app/data
+```
+
+3. 点击 **部署** 启动容器
+
+### 方式二：手动创建容器
+
+在 **容器** -> **容器** -> **创建容器** 中填写以下内容：
+
+#### 基本信息
+
+| 项目 | 填写内容 |
+| :--- | :--- |
+| **容器名称** | `awb-app` |
+| **镜像** | `ghcr.io/whatwoods/administrative-workbench:latest` |
+| **重启策略** | 总是重启 (Always) |
+
+#### 端口映射
+
+| 服务端口 | 宿主机端口 | 协议 |
+| :--- | :--- | :--- |
+| `80` | `8080` (或其他可用端口) | TCP |
+
+#### 挂载（存储卷）
+
+| 宿主机路径 | 容器路径 | 模式 |
+| :--- | :--- | :--- |
+| `/opt/1panel/apps/awb/data` | `/app/data` | 读写 |
+
+> [!WARNING]
+> **必须挂载 `/app/data` 目录**，否则重启容器后所有数据（账号、待办、笔记）将会丢失！
+
+#### 环境变量
+
+可以在"批量编辑"模式下逐行粘贴：
+
+```text
+NODE_ENV=production
+JWT_SECRET=awb_secure_key_123456
+LLM_PROVIDER=tencent
+LLM_API_KEY=你的API密钥
+APP_PORT=80
+```
+
+如果使用 **硅基流动 (SiliconFlow)** 作为 AI 提供商：
+
+```text
+NODE_ENV=production
+JWT_SECRET=awb_secure_key_123456
+LLM_PROVIDER=siliconflow
+LLM_API_KEY=你的API密钥
+LLM_MODEL=deepseek-ai/DeepSeek-V3
+APP_PORT=80
+```
+
+#### 标签（可选）
+
+| 键 | 值 |
+| :--- | :--- |
+| `owner` | `admin` |
+| `project` | `administrative-workbench` |
+| `description` | `AI办公工作台` |
+
+---
+
+## 🔐 首次登录与注册
+
+本项目**需要注册登录**才能使用，数据库初始化时不会创建默认账号。
+
+### 首次使用流程
+
+1. 部署完成后，访问 `http://服务器IP:8080`
+2. 在登录页面点击 **注册 (Register)**
+3. 输入**用户名、邮箱、密码**完成注册
+4. 注册成功后自动登录，即可使用全部功能
+
+### 注意事项
+
+- 所有用户数据保存在你挂载的 `/app/data` 目录下的 `admin-workbench.db` 文件中
+- 如果是个人使用，建议通过 1Panel 的反向代理添加 Basic Auth 或关闭注册功能，防止他人注册
+- `JWT_SECRET` 环境变量用于加密登录令牌，务必使用随机长字符串

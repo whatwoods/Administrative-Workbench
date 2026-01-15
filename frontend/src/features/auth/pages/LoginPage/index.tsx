@@ -3,24 +3,13 @@ import { useAuth } from '../../hooks/useAuth';
 import './styles.css';
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
+    const [emailOrUsername, setEmailOrUsername] = useState('');
     const [password, setPassword] = useState('');
     const { handleLogin, loading } = useAuth();
-    const [isRegister, setIsRegister] = useState(false);
-    const [username, setUsername] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (isRegister) {
-            if (!username.trim()) {
-                alert('Username is required');
-                return;
-            }
-            // handleRegister(email, username, password);
-        } else {
-            handleLogin(email, password);
-        }
+        handleLogin(emailOrUsername, password);
     };
 
     return (
@@ -29,40 +18,26 @@ export default function LoginPage() {
                 <h1 className="auth-title">Administrative Workbench</h1>
 
                 <form onSubmit={handleSubmit}>
-                    {isRegister && (
-                        <div className="form-group">
-                            <label htmlFor="username">Username</label>
-                            <input
-                                id="username"
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder="Enter your username"
-                                disabled={loading}
-                            />
-                        </div>
-                    )}
-
                     <div className="form-group">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email">用户名或邮箱</label>
                         <input
                             id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
+                            type="text"
+                            value={emailOrUsername}
+                            onChange={(e) => setEmailOrUsername(e.target.value)}
+                            placeholder="admin"
                             disabled={loading}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password">密码</label>
                         <input
                             id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
+                            placeholder="admin123"
                             disabled={loading}
                         />
                     </div>
@@ -72,29 +47,17 @@ export default function LoginPage() {
                         className="auth-button"
                         disabled={loading}
                     >
-                        {loading ? 'Loading...' : isRegister ? 'Register' : 'Login'}
+                        {loading ? '登录中...' : '登录'}
                     </button>
                 </form>
 
                 <div className="auth-footer">
-                    <p>
-                        {isRegister ? 'Already have an account?' : "Don't have an account?"}
-                        {' '}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsRegister(!isRegister);
-                                setEmail('');
-                                setPassword('');
-                                setUsername('');
-                            }}
-                            className="toggle-auth"
-                        >
-                            {isRegister ? 'Login' : 'Register'}
-                        </button>
+                    <p className="default-hint">
+                        默认账户: <code>admin</code> / <code>admin123</code>
                     </p>
                 </div>
             </div>
         </div>
     );
 }
+
