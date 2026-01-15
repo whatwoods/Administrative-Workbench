@@ -10,11 +10,13 @@ import ExpensePage from './pages/ExpensePage'
 import NotePage from './pages/NotePage'
 import WeatherPage from './pages/WeatherPage'
 import AIPage from './pages/AIPage'
+import OfflineIndicator from './components/OfflineIndicator'
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
+      <OfflineIndicator />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         
