@@ -6,15 +6,13 @@
 
 ## 📋 配置清单
 
-### ✅ 第 1 步：准备 Docker Hub（5 分钟）
+### ✅ 第 1 步：准备 GitHub Container Registry（0 分钟）
 
-- [ ] 注册 [Docker Hub](https://hub.docker.com) 账户
-- [ ] 创建两个镜像仓库：
-  - [ ] `administrative-workbench-backend`
-  - [ ] `administrative-workbench-frontend`
-- [ ] 生成访问令牌：
-  - 进入 **Account Settings** → **Security** → **New Access Token**
-  - [ ] 复制令牌值（后续需要）
+✨ **好消息！** GitHub Container Registry (ghcr.io) 已经为您准备好了！
+- [ ] 您已有 GitHub 账户
+- [ ] 无需额外配置，直接使用 GitHub 默认的 `GITHUB_TOKEN`
+
+> 这比使用 Docker Hub 更简单 - 无需单独注册和生成令牌！
 
 ### ✅ 第 2 步：配置服务器 SSH（5 分钟）
 
@@ -42,41 +40,34 @@ cat ~/.ssh/github_deploy
 
 ```bash
 # Secret 1
-名称: DOCKER_USERNAME
-值: your-docker-username
-
-# Secret 2  
-名称: DOCKER_PASSWORD
-值: dckr_pat_xxxxxxxxxxxxxxxxxxxxx (Docker Hub 访问令牌)
-
-# Secret 3
 名称: SERVER_HOST
 值: 192.168.1.100 (或 deploy.example.com)
 
-# Secret 4
+# Secret 2
 名称: SERVER_USER
 值: ubuntu
 
-# Secret 5
+# Secret 3
 名称: SERVER_SSH_KEY
 值: (粘贴上面复制的完整私钥内容)
 
-# Secret 6
+# Secret 4
 名称: SERVER_PORT
 值: 22
 
-# Secret 7
+# Secret 5
 名称: DEPLOY_PATH
 值: /opt/administrative-workbench
 ```
 
-- [ ] DOCKER_USERNAME
-- [ ] DOCKER_PASSWORD
 - [ ] SERVER_HOST
 - [ ] SERVER_USER
 - [ ] SERVER_SSH_KEY
 - [ ] SERVER_PORT
 - [ ] DEPLOY_PATH
+
+> ✨ **注意：** 不需要 DOCKER_USERNAME 和 DOCKER_PASSWORD！
+> GitHub 会自动使用 GITHUB_TOKEN 来推送镜像到 ghcr.io
 
 ### ✅ 第 4 步：初始化服务器（5 分钟）
 

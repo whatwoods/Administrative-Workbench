@@ -1,25 +1,23 @@
 # GitHub Actions 自动化部署 - 环境变量示例
 
-## Docker Hub 配置示例
+## GitHub Container Registry 配置
+
+使用 GitHub Container Registry (ghcr.io) 的优势：
+
+✨ **无需 Docker Hub！**
+- 自动使用 GitHub 账户和 GITHUB_TOKEN
+- 镜像与代码仓库在同一位置
+- 更简单的权限管理
+- 免费存储和带宽
+
+## GitHub Secrets 配置示例
+
+### 服务器 SSH 配置示例
+
+#### Linux/Mac - 生成 SSH 密钥
 
 ```bash
-# Docker Hub 用户名
-DOCKER_USERNAME=your-docker-username
-
-# Docker Hub 密码（推荐使用访问令牌）
-# 从 Docker Hub → Account Settings → Security 获取
-DOCKER_PASSWORD=dckr_pat_xxxxxxxxxxxxxxxxxxxxx
-```
-
-## 服务器 SSH 配置示例
-
-### Linux/Mac - 生成 SSH 密钥
-
-```bash
-# 生成 4096 位 RSA 密钥
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/github_deploy -N ""
-
-# 或使用 ED25519（更安全，推荐）
+# 生成 ED25519 密钥（推荐，更安全更快）
 ssh-keygen -t ed25519 -f ~/.ssh/github_deploy -N ""
 
 # 将公钥添加到服务器
@@ -29,25 +27,18 @@ ssh-copy-id -i ~/.ssh/github_deploy.pub -p 22 ubuntu@your-server-ip
 cat ~/.ssh/github_deploy.pub | ssh -p 22 ubuntu@your-server-ip "cat >> ~/.ssh/authorized_keys"
 ```
 
-### Windows - 使用 PuTTY 生成密钥
-
-1. 下载 [PuTTYgen](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
-2. 打开 PuTTYgen
-3. 点击 **Generate**
-4. 点击 **Save private key**（保存为 `.ppk` 格式）
-5. 复制公钥内容到服务器的 `~/.ssh/authorized_keys`
-
 ### GitHub Secrets 配置示例
 
 | 参数 | 值 | 说明 |
 |------|------|------|
-| `DOCKER_USERNAME` | `your-docker-username` | Docker Hub 用户名 |
-| `DOCKER_PASSWORD` | `dckr_pat_xxxxx` | Docker Hub 访问令牌 |
 | `SERVER_HOST` | `192.168.1.100` | 服务器公网 IP 或域名 |
 | `SERVER_USER` | `ubuntu` | SSH 连接用户名 |
-| `SERVER_SSH_KEY` | `-----BEGIN RSA PRIVATE KEY-----...` | SSH 私钥内容（整个文件） |
+| `SERVER_SSH_KEY` | 完整私钥内容 | SSH 私钥（整个文件） |
 | `SERVER_PORT` | `22` | SSH 端口 |
 | `DEPLOY_PATH` | `/opt/administrative-workbench` | 服务器部署目录路径 |
+
+> **注意：** 不需要 DOCKER_USERNAME 和 DOCKER_PASSWORD！
+> GitHub 自动使用 GITHUB_TOKEN 来推送镜像到 ghcr.io
 
 ## 快速设置脚本
 
