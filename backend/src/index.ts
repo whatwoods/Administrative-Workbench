@@ -1,8 +1,10 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import http from 'http';
 import { connectDB } from './config/database.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { RealtimeService } from './services/realtimeService.js';
 
 // 导入路由
 import authRoutes from './routes/authRoutes.js';
@@ -17,6 +19,9 @@ import aiRoutes from './routes/aiRoutes.js';
 dotenv.config();
 
 const app: Express = express();
+const server = http.createServer(app);
+const realtimeService = new RealtimeService(server);
+
 const PORT = process.env.PORT || 5000;
 
 // 中间件
@@ -32,6 +37,15 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
+// WebSocket 状态检查
+app.get('/api/realtime/status', (req: Request, res: Response) => {
+  res.json({
+    connected: true,
+    activeUsers: realtimeService.getActiveUsers(),
+    userCount: realtimeService.getUserCount(),
+  });
+});
+
 // API 路由
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
@@ -44,8 +58,9 @@ app.use('/api/ai', aiRoutes);
 // 错误处理中间件
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`WebSocket server initialized`);
 });
 
 export default app;
