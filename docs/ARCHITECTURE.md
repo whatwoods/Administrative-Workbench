@@ -76,37 +76,35 @@ Administrative-Workbench/
 - 自定义和搜索
 - 云端同步
 
-### 6. AI 智能助手 🤖
-- 智能问答
-- 自动创建待办事项
-- 智能录入费用
-- 文档生成
+### 6. AI Agent 助手 (LLM Agent) 🤖
+- **核心逻辑**：基于 `aiAgentService.ts` 的工具编排引擎。
+- **能力**：具备 13+ 内置 Tool，实现从自然语言到 API 调用的双向映射。
+- **RAG 增强**：集成语义搜索，基于本地笔记库回答用户问题。
+- **多模态**：支持 Web Speech API 语音交互。
 
 ## 🛠️ 技术栈
 
 ### 前端
-- **框架**：React 18
+- **框架**：React 18 + Vite 5
 - **语言**：TypeScript
-- **构建工具**：Vite
 - **状态管理**：Zustand
-- **HTTP 客户端**：Axios
-- **UI 组件**：Lucide React
-- **图表**：Recharts
-- **通知**：React Hot Toast
+- **离线能力**: PWA + Service Worker + LocalStorage
+- **核心组件**: `AIAssistant` (聊天界面), `AIFloatingWidget` (全局悬浮窗)
+- **UI 风格**：Vanilla CSS + Glassmorphism + Lucide Icons
 
 ### 后端
-- **运行时**：Node.js
-- **框架**：Express
-- **语言**：TypeScript
-- **数据库**：MongoDB + Mongoose
-- **认证**：JWT
-- **密码加密**：bcryptjs
-- **验证**：express-validator
+- **运行时**：Node.js (TypeScript)
+- **框架**：Express 4
+- **数据库**：**SQLite 3** (嵌入式)
+- **ORM**：**Drizzle ORM** (负责 Schema 定义、迁移与高性能查询)
+- **AI 引擎**：Tencent Cloud DeepSeek V3 / SiliconFlow
+- **认证**：JWT (权限校验与用户隔离)
 
-### 部署
-- **容器化**：Docker
-- **编排**：Docker Compose
-- **Web 服务器**：Nginx（前端）
+### 部署 (Unified Image)
+- **基础镜像**：Debian / Alpine
+- **反向代理**：Nginx (内部转发静态资源与 API)
+- **容器化**：Docker + Docker Compose
+
 
 ## 📝 下一步优化
 

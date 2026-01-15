@@ -18,18 +18,21 @@ npm install
 
 ### 2. 环境变量配置
 
-后端 (`.env`)：
+后端 (`backend/.env`)：
 ```env
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/admin-workbench
+# JWT 配置
 JWT_SECRET=your-secret-key-here
 JWT_EXPIRE=7d
-WEATHER_API_KEY=your-weather-api-key
-OPENAI_API_KEY=your-openai-api-key
+
+# LLM 配置 (AI Agent 核心)
+LLM_PROVIDER=tencent
+LLM_API_KEY=your-tencent-cloud-api-key
+LLM_MODEL=deepseek-v3.2
 ```
 
 ### 3. 启动服务
+
+本项目使用 **SQLite** 数据库，无需安装独立的数据库服务。
 
 终端 1 - 后端：
 ```bash
@@ -43,12 +46,13 @@ cd frontend
 npm run dev
 ```
 
-### 4. 启动 MongoDB
+## ⌨️ 快捷键
 
-使用 Docker：
-```bash
-docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=admin123 mongo:7
-```
+在应用中可以使用以下快捷键：
+
+- `Ctrl + Shift + A`: 打开/关闭全局 AI 辅助窗口
+- `Esc`: 关闭当前弹出的对话框
+
 
 ## 代码规范
 
@@ -87,11 +91,12 @@ chore: 其他改动
 
 ## 常见问题
 
-### MongoDB 连接失败
-检查 MongoDB 是否运行，确认连接字符串正确
+### 数据库锁定 (SQLite)
+如果遇到 `database is locked` 错误，请检查是否有其他进程正在占用 `database.sqlite` 文件，或尝试重启后端。
 
 ### CORS 错误
-检查后端 CORS 配置，确认前端 URL 已加入白名单
+检查后端 `CORS` 配置，确认前端 URL 已加入白名单。
+
 
 ### 环境变量未生效
 确认 `.env` 文件在正确的目录，重启开发服务器
