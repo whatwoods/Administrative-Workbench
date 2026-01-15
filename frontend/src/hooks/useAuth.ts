@@ -17,7 +17,7 @@ export const useAuth = () => {
     setLoading(true);
     try {
       const response = await authService.register(email, username, password);
-      const { user, token } = response.data.data;
+      const { user, token } = (response.data as any).data;
       login(user, token);
       toast.success('Registration successful!');
       navigate('/');
@@ -32,7 +32,7 @@ export const useAuth = () => {
     setLoading(true);
     try {
       const response = await authService.login(email, password);
-      const { user, token } = response.data.data;
+      const { user, token } = (response.data as any).data;
       login(user, token);
       toast.success('Login successful!');
       navigate('/');

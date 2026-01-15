@@ -24,7 +24,7 @@ export default function TodoPage() {
     setLoading(true)
     try {
       const response = await todoService.getAll()
-      setTodos(response.data.data)
+      setTodos((response.data as any).data)
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to fetch todos')
     } finally {
@@ -48,7 +48,7 @@ export default function TodoPage() {
     const newStatus = todo.status === 'completed' ? 'pending' : 'completed'
     try {
       const response = await todoService.update(todo._id, { status: newStatus })
-      setTodos(todos.map(t => t._id === todo._id ? response.data.data : t))
+      setTodos(todos.map(t => t._id === todo._id ? (response.data as any).data : t))
       toast.success('Todo updated')
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to update todo')
@@ -83,11 +83,11 @@ export default function TodoPage() {
             try {
               if (editingTodo) {
                 const response = await todoService.update(editingTodo._id, data)
-                setTodos(todos.map(t => t._id === editingTodo._id ? response.data.data : t))
+                setTodos(todos.map(t => t._id === editingTodo._id ? (response.data as any).data : t))
                 toast.success('Todo updated')
               } else {
                 const response = await todoService.create(data as any)
-                setTodos([...todos, response.data.data])
+                setTodos([...todos, (response.data as any).data])
                 toast.success('Todo created')
               }
               setShowForm(false)

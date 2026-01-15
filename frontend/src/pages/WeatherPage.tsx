@@ -124,21 +124,21 @@ const WeatherPage: React.FC = () => {
                   <Droplets size={20} />
                   <div>
                     <label>湿度</label>
-                    <value>{weather.humidity}%</value>
+                    <span className="value">{weather.humidity}%</span>
                   </div>
                 </div>
                 <div className="detail">
                   <Wind size={20} />
                   <div>
                     <label>风速</label>
-                    <value>{weather.windSpeed} km/h</value>
+                    <span className="value">{weather.windSpeed} km/h</span>
                   </div>
                 </div>
                 <div className="detail">
                   <Sun size={20} />
                   <div>
                     <label>日落时间</label>
-                    <value>{weather.sunset}</value>
+                    <span className="value">{weather.sunset}</span>
                   </div>
                 </div>
               </div>

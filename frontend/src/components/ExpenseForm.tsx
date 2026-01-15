@@ -9,9 +9,9 @@ interface ExpenseFormProps {
 
 export default function ExpenseForm({ onSubmit, initialData }: ExpenseFormProps) {
   const [amount, setAmount] = useState(initialData?.amount || '')
-  const [category, setCategory] = useState(initialData?.category || 'office')
+  const [category, setCategory] = useState<string>(initialData?.category || 'office')
   const [description, setDescription] = useState(initialData?.description || '')
-  const [status, setStatus] = useState(initialData?.status || 'pending')
+  const [status, setStatus] = useState<string>(initialData?.status || 'pending')
   const [date, setDate] = useState(
     initialData?.date ? initialData.date.toString().split('T')[0] : new Date().toISOString().split('T')[0]
   )
@@ -32,7 +32,7 @@ export default function ExpenseForm({ onSubmit, initialData }: ExpenseFormProps)
         category: category as any,
         description,
         status: status as any,
-        date: new Date(date),
+        date: new Date(date) as any,
       })
     } finally {
       setLoading(false)

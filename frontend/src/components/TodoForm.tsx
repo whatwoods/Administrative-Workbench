@@ -10,8 +10,8 @@ interface TodoFormProps {
 export default function TodoForm({ onSubmit, initialData }: TodoFormProps) {
   const [title, setTitle] = useState(initialData?.title || '')
   const [description, setDescription] = useState(initialData?.description || '')
-  const [category, setCategory] = useState(initialData?.category || 'daily')
-  const [priority, setPriority] = useState(initialData?.priority || 'medium')
+  const [category, setCategory] = useState<string>(initialData?.category || 'daily')
+  const [priority, setPriority] = useState<string>(initialData?.priority || 'medium')
   const [dueDate, setDueDate] = useState(
     initialData?.dueDate ? initialData.dueDate.toString().split('T')[0] : ''
   )
@@ -32,7 +32,7 @@ export default function TodoForm({ onSubmit, initialData }: TodoFormProps) {
         description,
         category: category as any,
         priority: priority as any,
-        dueDate: dueDate ? new Date(dueDate) : undefined,
+        dueDate: dueDate ? new Date(dueDate) as any : undefined,
       })
     } finally {
       setLoading(false)

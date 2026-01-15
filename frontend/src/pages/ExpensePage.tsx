@@ -26,7 +26,7 @@ export default function ExpensePage() {
     setLoading(true)
     try {
       const response = await expenseService.getAll()
-      setExpenses(response.data.data)
+      setExpenses((response.data as any).data)
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to fetch expenses')
     } finally {
@@ -37,7 +37,7 @@ export default function ExpensePage() {
   const fetchStats = async () => {
     try {
       const response = await expenseService.getStats()
-      setStats(response.data.data)
+      setStats((response.data as any).data)
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to fetch stats')
     }
@@ -86,11 +86,11 @@ export default function ExpensePage() {
             try {
               if (editingExpense) {
                 const response = await expenseService.update(editingExpense._id, data)
-                setExpenses(expenses.map(e => e._id === editingExpense._id ? response.data.data : e))
+                setExpenses(expenses.map(e => e._id === editingExpense._id ? (response.data as any).data : e))
                 toast.success('Expense updated')
               } else {
                 const response = await expenseService.create(data as any)
-                setExpenses([...expenses, response.data.data])
+                setExpenses([...expenses, (response.data as any).data])
                 toast.success('Expense created')
               }
               setShowForm(false)

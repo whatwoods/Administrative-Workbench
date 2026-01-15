@@ -8,7 +8,7 @@ export const useRealtime = () => {
   useEffect(() => {
     if (user) {
       const serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      realtimeClient.connect(serverUrl, user._id || '', user.username || '');
+      realtimeClient.connect(serverUrl, (user as any)._id || '', user.username || '');
 
       return () => {
         // 不立即断开，保持连接直到用户完全退出

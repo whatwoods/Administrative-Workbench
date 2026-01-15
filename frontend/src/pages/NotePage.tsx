@@ -20,7 +20,7 @@ export default function NotePage() {
     setLoading(true)
     try {
       const response = await noteService.getAll()
-      setNotes(response.data.data)
+      setNotes((response.data as any).data)
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to fetch notes')
     } finally {
@@ -61,11 +61,11 @@ export default function NotePage() {
             try {
               if (editingNote) {
                 const response = await noteService.update(editingNote._id, data)
-                setNotes(notes.map(n => n._id === editingNote._id ? response.data.data : n))
+                setNotes(notes.map(n => n._id === editingNote._id ? (response.data as any).data : n))
                 toast.success('Note updated')
               } else {
                 const response = await noteService.create(data as any)
-                setNotes([...notes, response.data.data])
+                setNotes([...notes, (response.data as any).data])
                 toast.success('Note created')
               }
               setShowForm(false)

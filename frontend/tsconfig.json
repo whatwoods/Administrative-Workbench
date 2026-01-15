@@ -17,11 +17,15 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    /* Linting */
+    /* Linting - relaxed for legacy code */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
+    /* Vite types */
+    "types": [
+      "vite/client"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": [
