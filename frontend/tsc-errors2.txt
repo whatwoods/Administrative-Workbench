@@ -1,0 +1,37 @@
+﻿src/__tests__/components/OfflineIndicator.spec.tsx(1,36): error TS6133: 'beforeEach' is declared but its value is never read.
+src/__tests__/components/OfflineIndicator.spec.tsx(3,1): error TS6133: 'userEvent' is declared but its value is never read.
+src/__tests__/setup.ts(1,10): error TS6133: 'expect' is declared but its value is never read.
+src/components/AIAssistant.tsx(19,10): error TS6133: 'suggestions' is declared but its value is never read.
+src/components/ExpenseForm.tsx(35,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+src/components/ExpenseForm.tsx(76,42): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<"repair" | "office" | "water" | "electricity" | "gas" | "other">'.
+src/components/ExpenseForm.tsx(93,40): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<"pending" | "approved" | "rejected">'.
+src/components/OfflineIndicator.tsx(2,10): error TS2724: '"lucide-react"' has no exported member named 'WiFiOff'. Did you mean 'WifiOff'?
+src/components/OfflineIndicator.tsx(2,19): error TS6133: 'WifiIcon' is declared but its value is never read.
+src/components/TodoForm.tsx(35,9): error TS2322: Type 'Date | undefined' is not assignable to type 'string | undefined'.
+  Type 'Date' is not assignable to type 'string'.
+src/components/TodoForm.tsx(62,42): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<"repair" | "project" | "daily">'.
+src/components/TodoForm.tsx(76,42): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<"low" | "medium" | "high">'.
+src/hooks/useAuth.ts(20,45): error TS2339: Property 'data' does not exist on type 'AuthResponse'.
+src/hooks/useAuth.ts(35,45): error TS2339: Property 'data' does not exist on type 'AuthResponse'.
+src/hooks/useRealtime.ts(10,37): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/hooks/useRealtime.ts(11,46): error TS2339: Property '_id' does not exist on type 'User'.
+src/pages/Dashboard.tsx(1,1): error TS6192: All imports in import declaration are unused.
+src/pages/ExpensePage.tsx(2,31): error TS6133: 'BarChart3' is declared but its value is never read.
+src/pages/ExpensePage.tsx(15,21): error TS6133: 'setDateRange' is declared but its value is never read.
+src/pages/ExpensePage.tsx(29,33): error TS2339: Property 'data' does not exist on type 'Expense[]'.
+src/pages/ExpensePage.tsx(89,92): error TS2339: Property 'data' does not exist on type 'Expense'.
+src/pages/ExpensePage.tsx(93,57): error TS2339: Property 'data' does not exist on type 'Expense'.
+src/pages/NotePage.tsx(23,30): error TS2339: Property 'data' does not exist on type 'Note[]'.
+src/pages/NotePage.tsx(64,83): error TS2339: Property 'data' does not exist on type 'Note'.
+src/pages/NotePage.tsx(68,51): error TS2339: Property 'data' does not exist on type 'Note'.
+src/pages/TodoPage.tsx(27,30): error TS2339: Property 'data' does not exist on type 'Todo[]'.
+src/pages/TodoPage.tsx(51,66): error TS2339: Property 'data' does not exist on type 'Todo'.
+src/pages/TodoPage.tsx(86,83): error TS2339: Property 'data' does not exist on type 'Todo'.
+src/pages/TodoPage.tsx(90,51): error TS2339: Property 'data' does not exist on type 'Todo'.
+src/pages/WeatherPage.tsx(127,21): error TS2339: Property 'value' does not exist on type 'JSX.IntrinsicElements'.
+src/pages/WeatherPage.tsx(127,47): error TS2339: Property 'value' does not exist on type 'JSX.IntrinsicElements'.
+src/pages/WeatherPage.tsx(134,21): error TS2339: Property 'value' does not exist on type 'JSX.IntrinsicElements'.
+src/pages/WeatherPage.tsx(134,52): error TS2339: Property 'value' does not exist on type 'JSX.IntrinsicElements'.
+src/pages/WeatherPage.tsx(141,21): error TS2339: Property 'value' does not exist on type 'JSX.IntrinsicElements'.
+src/pages/WeatherPage.tsx(141,44): error TS2339: Property 'value' does not exist on type 'JSX.IntrinsicElements'.
+src/services/api.ts(3,34): error TS2339: Property 'env' does not exist on type 'ImportMeta'.

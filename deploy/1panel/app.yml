@@ -1,0 +1,76 @@
+# Administrative Workbench - 1Panel 应用配置
+# 
+# 使用方法:
+# 1. 将此目录放入 1Panel 的自定义应用目录
+# 2. 在 1Panel 中选择"从本地应用创建"
+# 3. 选择此目录进行部署
+
+name: administrative-workbench
+title: Administrative Workbench
+description: 现代化工作台应用，集成任务管理、费用追踪、便签、天气、AI助手等功能
+version: 1.0.0
+author: whatwoods
+website: https://github.com/whatwoods/Administrative-Workbench
+
+# 服务定义
+services:
+  - name: mongodb
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - ./data/mongodb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/admin --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  - name: backend
+    build: ../../backend
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/admin-workbench?authSource=admin
+      JWT_SECRET: ${JWT_SECRET}
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+
+  - name: frontend
+    build: ../../frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${PANEL_APP_PORT_HTTP}:80"
+
+# 环境变量定义（1Panel 界面可配置）
+env:
+  - name: MONGO_USER
+    label: MongoDB 用户名
+    default: admin
+    required: true
+
+  - name: MONGO_PASSWORD
+    label: MongoDB 密码
+    default: ""
+    required: true
+    type: password
+
+  - name: JWT_SECRET
+    label: JWT 密钥
+    default: ""
+    required: true
+    type: password
+
+  - name: PANEL_APP_PORT_HTTP
+    label: 访问端口
+    default: 8080
+    required: true
+    type: number

@@ -1,40 +1,46 @@
+# Docker Compose 配置
+# 此文件为快捷入口，实际配置在 deploy/docker-compose.yml
+#
+# 使用方法:
+#   docker compose -f deploy/docker-compose.yml up -d
+#
+# 或直接使用部署脚本:
+#   ./deploy/scripts/deploy.sh
+
 version: '3.8'
+
+# 生产部署请使用 deploy/docker-compose.yml
+# 此文件用于本地快速启动
 
 services:
   mongodb:
     image: mongo:7
-    container_name: admin-workbench-mongodb
+    container_name: awb-mongodb-dev
+    ports:
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin123
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: admin-workbench-backend
-    environment:
-      MONGODB_URI: mongodb://admin:admin123@mongodb:27017/admin-workbench?authSource=admin
-      JWT_SECRET: your-secret-key-change-this
-      NODE_ENV: production
+    build: ./backend
+    container_name: awb-backend-dev
     ports:
       - "5000:5000"
+    environment:
+      MONGODB_URI: mongodb://admin:admin123@mongodb:27017/admin-workbench?authSource=admin
+      JWT_SECRET: dev-secret-key
+      NODE_ENV: development
     depends_on:
       - mongodb
     volumes:
       - ./backend/src:/app/src
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: admin-workbench-frontend
-    environment:
-      VITE_API_URL: http://localhost:5000/api
+    build: ./frontend
+    container_name: awb-frontend-dev
     ports:
       - "3000:80"
     depends_on:
