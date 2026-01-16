@@ -1,0 +1,63 @@
+.workbench {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* 主内容网格 - 2x2 布局 */
+.workbench-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    min-height: 0;
+}
+
+.grid-item {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 区域分配 */
+.todo-area {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.schedule-area {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.notes-area {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.expense-area {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+    .workbench-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    .todo-area,
+    .schedule-area,
+    .notes-area,
+    .expense-area {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .grid-item {
+        min-height: 320px;
+    }
+}

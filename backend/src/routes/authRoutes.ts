@@ -18,7 +18,7 @@ router.post(
 router.post(
   '/login',
   [
-    body('email').isEmail().normalizeEmail(),
+    body('email').notEmpty().withMessage('用户名或邮箱不能为空'),
     body('password').notEmpty(),
   ],
   AuthController.login

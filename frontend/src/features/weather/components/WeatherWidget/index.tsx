@@ -16,7 +16,9 @@ const WeatherWidget: React.FC = () => {
         try {
             setLoading(true);
             const response = await weatherService.getCurrent();
-            setWeather(response.data);
+            // API 响应格式: { success: true, data: { temp, condition, ... } }
+            const weatherData = (response.data as any).data || response.data;
+            setWeather(weatherData);
             setError(null);
         } catch (err) {
             setError('无法获取天气数据');
@@ -83,8 +85,8 @@ const WeatherWidget: React.FC = () => {
                 <div className="detail-item">
                     <Sun size={18} />
                     <div>
-                        <span className="label">日落</span>
-                        <span className="value">{weather.sunset}</span>
+                        <span className="label">更新</span>
+                        <span className="value">{weather.timestamp ? new Date(weather.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '--:--'}</span>
                     </div>
                 </div>
             </div>

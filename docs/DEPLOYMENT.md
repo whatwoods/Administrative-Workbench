@@ -29,14 +29,23 @@ docker compose pull && docker compose up -d
 ghcr.io/whatwoods/administrative-workbench:latest
 ```
 
-## 常用命令
-
 ```bash
 docker compose logs -f    # 查看日志
 docker compose restart    # 重启
 docker compose down       # 停止
-docker compose pull && docker compose up -d  # 更新
+
+# 更新方法 (Docker Compose)
+docker compose pull && docker compose up -d
 ```
+
+### 方式二：手动部署更新 (非 Compose)
+
+如果你是通过 `docker run` 手动启动的容器，请按以下步骤更新：
+
+1. **拉取新镜像**：`docker pull ghcr.io/whatwoods/administrative-workbench:latest`
+2. **停止并删除旧容器**：`docker stop awb-app && docker rm awb-app`
+3. **重新运行启动命令**：使用之前的 `docker run` 命令重新创建容器（确保挂载了相同的 `/app/data` 目录）。
+
 
 ## 数据备份
 
@@ -195,7 +204,56 @@ APP_PORT=80
 
 ---
 
-## 🔐 默认账户与首次登录
+## � 自动化更新 (GitHub -> Docker)
+
+目前本项目已经配置了 GitHub Actions，每当你向 `main` 分支提交代码时，会自动构建新镜像并推送到 `ghcr.io`。
+
+为了让你的服务器能自动感知并更新镜像，建议使用 **Watchtower**。
+
+### 1. 使用 Docker Compose 集成
+
+修改你的 `docker-compose.yml`，添加 Watchtower 服务：
+
+```yaml
+services:
+  awb-app:
+    image: ghcr.io/whatwoods/administrative-workbench:latest
+    # ... 其他配置 ...
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=3600 # 每小时检查一次
+    command: --interval 3600 awb-app
+```
+
+### 2. 手动运行 Watchtower (独立容器)
+
+如果你不想修改 Compose 文件，可以直接运行一个独立容器来监视 `awb-app`：
+
+```bash
+docker run -d \
+  --name watchtower \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  containrrr/watchtower \
+  --cleanup \
+  --interval 3600 \
+  awb-app
+```
+
+**原理说明**：
+- **GitHub Actions**：负责把代码变动变成新的“镜像包”。
+- **Watchtower**：就像一个守卫，每隔一小时去仓库看一眼有没有新包，如果有，就自动拉取并重启你的应用。
+
+---
+
+## �🔐 默认账户与首次登录
+
 
 为了提高即时可用性和安全性，本项目**默认禁用了开放注册**，并内置了一个初始管理员账号。
 

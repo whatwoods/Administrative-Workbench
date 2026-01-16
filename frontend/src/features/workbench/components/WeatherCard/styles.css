@@ -1,0 +1,216 @@
+.weather-card {
+    height: 100%;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 当前天气 - 紧凑 */
+.weather-current {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.weather-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.weather-main {
+    flex: 1;
+}
+
+.weather-temp {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.weather-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.weather-location {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* 天气详情 - 紧凑网格 */
+.weather-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-item {
+    text-align: center;
+    padding: 6px 4px;
+    background: var(--bg-base);
+    border-radius: var(--radius-sm);
+}
+
+.detail-label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.detail-value {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* 节气信息 - 紧凑 */
+.solar-term {
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.solar-term-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.solar-term-badge {
+    padding: 2px 8px;
+    background: var(--primary);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
+.solar-term-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.solar-term-date {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.lighting-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(245, 158, 11, 0.15);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.lighting-icon {
+    color: #f59e0b;
+}
+
+.lighting-text {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.lighting-value {
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+/* 5天预报 - 紧凑列表 */
+.forecast-section {
+    flex: 1;
+}
+
+.forecast-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.forecast-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.forecast-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: var(--bg-base);
+    border-radius: var(--radius-sm);
+}
+
+.forecast-day {
+    width: 32px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.forecast-icon {
+    font-size: 14px;
+}
+
+.forecast-temps {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.temp-high {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.temp-low {
+    color: var(--text-muted);
+}
+
+/* 下一个节气倒计时 */
+.next-solar-term {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--bg-base);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+}
+
+.next-solar-label {
+    color: var(--text-muted);
+}
+
+.next-solar-name {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.next-solar-countdown {
+    color: var(--primary);
+    font-weight: 600;
+}

@@ -9,6 +9,7 @@
 
 .dashboard-header h1 {
     font-size: 32px;
+    font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 8px;
 }
@@ -25,27 +26,49 @@
     margin-bottom: 40px;
 }
 
+/* Glass Feature Cards */
 .feature-card {
-    background: white;
-    border-radius: 12px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
     padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
     transition: all 0.3s ease;
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
     gap: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
 }
 
 .feature-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-light);
     transform: translateY(-4px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
 
 .feature-icon {
     font-size: 48px;
     line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
 .feature-content {
@@ -63,27 +86,35 @@
     font-size: 14px;
     color: var(--text-secondary);
     margin: 0;
+    line-height: 1.5;
 }
 
 .feature-arrow {
     color: var(--primary-color);
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: all 0.2s ease;
+    transform: translateX(-8px);
 }
 
 .feature-card:hover .feature-arrow {
     opacity: 1;
+    transform: translateX(0);
 }
 
+/* Glass Stats Section */
 .stats-section {
-    background: white;
-    border-radius: 12px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
     padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .stats-section h2 {
     font-size: 20px;
+    font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 20px;
 }
@@ -99,8 +130,9 @@
     align-items: center;
     justify-content: center;
     min-height: 300px;
-    background-color: #f9fafb;
-    border-radius: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
     color: var(--text-secondary);
 }
 

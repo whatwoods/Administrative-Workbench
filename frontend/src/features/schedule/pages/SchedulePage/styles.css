@@ -1,0 +1,98 @@
+.schedule-page {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    height: 100%;
+}
+
+/* 日历视图 */
+.calendar-view {
+    padding: 20px;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.calendar-weekday {
+    text-align: center;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background: var(--glass-bg-light);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.calendar-day:hover:not(.empty) {
+    background: var(--bg-card-hover);
+}
+
+.calendar-day.empty {
+    background: transparent;
+    cursor: default;
+}
+
+.calendar-day.today {
+    background: var(--primary);
+    color: white;
+}
+
+.day-number {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.today-label {
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+/* 今日日程 */
+.today-schedules {
+    padding: 20px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px 0;
+}
+
+.empty-schedules {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-muted);
+    gap: 8px;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+    .schedule-page {
+        grid-template-columns: 1fr;
+    }
+}

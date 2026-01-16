@@ -5,7 +5,7 @@ export interface WeatherData {
     condition: string;
     humidity: number;
     windSpeed: number;
-    sunset: string;
+    timestamp?: string;
     location: string;
 }
 

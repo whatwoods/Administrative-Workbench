@@ -1,0 +1,165 @@
+.expense-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
+}
+
+.header-title h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.header-period {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* 总费用显示 */
+.expense-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.expense-total {
+    display: flex;
+    flex-direction: column;
+}
+
+.expense-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.expense-amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-light);
+}
+
+.expense-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--primary);
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+/* 分类列表 */
+.expense-categories {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.category-title {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.category-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.category-dot.food {
+    background: #ef4444;
+}
+
+.category-dot.transport {
+    background: #f59e0b;
+}
+
+.category-dot.shopping {
+    background: #22c55e;
+}
+
+.category-dot.entertainment {
+    background: #8b5cf6;
+}
+
+.category-dot.other {
+    background: #64748b;
+}
+
+.category-name {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.category-amount {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* 图表区域占位 */
+.expense-chart {
+    height: 120px;
+    margin-top: 16px;
+    background: var(--glass-bg-light);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* 空状态 */
+.expense-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--text-muted);
+    font-size: 14px;
+}

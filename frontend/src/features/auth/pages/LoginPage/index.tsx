@@ -1,63 +1,83 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { Lock } from 'lucide-react';
 import './styles.css';
 
+function getCurrentTime(): { time: string; date: string } {
+    const now = new Date();
+    const time = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    const date = now.toLocaleDateString('zh-CN', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+    });
+    return { time, date };
+}
+
 export default function LoginPage() {
-    const [emailOrUsername, setEmailOrUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [clock, setClock] = useState(getCurrentTime());
     const { handleLogin, loading } = useAuth();
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setClock(getCurrentTime());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        handleLogin(emailOrUsername, password);
+        // 使用固定用户名 Way 登录
+        handleLogin('Way', password);
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h1 className="auth-title">Administrative Workbench</h1>
+        <div className="login-container">
+            {/* 动态背景动画 */}
+            <div className="animated-bg">
+                <div className="gradient-orb orb-1"></div>
+                <div className="gradient-orb orb-2"></div>
+                <div className="gradient-orb orb-3"></div>
+                <div className="gradient-orb orb-4"></div>
+            </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="email">用户名或邮箱</label>
-                        <input
-                            id="email"
-                            type="text"
-                            value={emailOrUsername}
-                            onChange={(e) => setEmailOrUsername(e.target.value)}
-                            placeholder="admin"
-                            disabled={loading}
-                        />
-                    </div>
+            {/* 时钟 */}
+            <div className="login-clock">
+                <div className="clock-date">{clock.date}</div>
+                <div className="clock-time">{clock.time}</div>
+            </div>
 
-                    <div className="form-group">
-                        <label htmlFor="password">密码</label>
+            {/* 登录卡片 */}
+            <div className="login-card glass-panel">
+                {/* 用户头像 */}
+                <div className="login-avatar">
+                    <span>W</span>
+                </div>
+
+                <form onSubmit={handleSubmit} className="login-form">
+                    <div className="login-input-group">
+                        <Lock size={18} className="input-icon" />
                         <input
-                            id="password"
                             type="password"
+                            className="glass-input login-input"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="admin123"
+                            placeholder="输入密码"
                             disabled={loading}
+                            autoFocus
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="auth-button"
-                        disabled={loading}
+                        className="glass-button primary login-button"
+                        disabled={loading || !password}
                     >
-                        {loading ? '登录中...' : '登录'}
+                        {loading ? '登录中...' : '解锁'}
                     </button>
                 </form>
-
-                <div className="auth-footer">
-                    <p className="default-hint">
-                        默认账户: <code>admin</code> / <code>admin123</code>
-                    </p>
-                </div>
             </div>
         </div>
     );
 }
-
