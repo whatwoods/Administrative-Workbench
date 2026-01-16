@@ -7,7 +7,9 @@ export interface WeatherData {
     windSpeed: number;
     timestamp?: string;
     location: string;
+    sunset: string;
 }
+
 
 export interface Forecast {
     date: string;
